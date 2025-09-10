@@ -16,6 +16,14 @@ It provides a command line interface (CLI) familiar to the discontinued [mdns-re
 
 ----
 
+## Installation of mDNS Reflector on macOS
+
+### Homebrew
+```sh
+brew tap matmartinez/tools
+brew install mdns-reflector
+```
+
 ## Installation of mDNS Reflector using prebuilt binaries
 ### Docker
 ```sh
@@ -81,6 +89,13 @@ Or run with Docker as a daemon:
 ```sh
 docker run -d --restart=always --net=host yuxzhu/mdns-reflector:latest mdns-reflector -fn eth0 eth1
 ```
+
+Or run with Homebrew as a service on macOS:
+
+```sh
+brew services start matmartinez/tools/mdns-reflector -fn eth0 eth1
+```
+
 ----
 
 ## Systemd service
