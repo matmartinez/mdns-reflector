@@ -90,10 +90,34 @@ Or run with Docker as a daemon:
 docker run -d --restart=always --net=host yuxzhu/mdns-reflector:latest mdns-reflector -fn eth0 eth1
 ```
 
-Or run with Homebrew as a service on macOS:
+----
+
+## Homebrew service on macOS
+
+Unlike running manually, you cannot pass extra flags or interfaces directly to
+`brew services start`. Instead, the Homebrew formula installs a small wrapper
+that reads its configuration from a file at:
+
+```
+$(brew –prefix)/etc/mdns-reflector.conf
+```
+
+Edit that file to set your interfaces and any extra flags, for example:
 
 ```sh
-brew services start matmartinez/tools/mdns-reflector -fn eth0 eth1
+# mdns-reflector Homebrew service configuration
+
+# Space-separated network interfaces (first is the "from", the rest are "to")
+interfaces="en0 bridge100"
+
+# Optional extra flags, e.g. "-4 -f"
+extraFlags="-4 -f"
+```
+
+Then (re)start the service:
+
+```
+brew services restart matmartinez/tools/mdns-reflector
 ```
 
 ----
