@@ -65,10 +65,10 @@ int new_recv_socket(const struct sockaddr_storage *sa, socklen_t sa_len, uint32_
                 log_err(LOG_ERR, "IPv6 setsockopt IPV6_PKTINFO");
                 goto cleanup;
             }
-#if defined(SO_BINDTODEVICE)
+#if defined(__linux__)
             {
                 struct ifreq ifr;
-                if (if_indextoname(ifindex, ifr.ifr_ifrn.ifrn_name) == NULL) {
+                if (if_indextoname(ifindex, ifr.ifr_name) == NULL) {
                     log_err(LOG_ERR, "if_indextoname");
                     goto cleanup;
                 }
@@ -101,10 +101,10 @@ int new_recv_socket(const struct sockaddr_storage *sa, socklen_t sa_len, uint32_
                 goto cleanup;
             }
 #endif
-#if defined(SO_BINDTODEVICE)
+#if defined(__linux__)
             {
                 struct ifreq ifr;
-                if (if_indextoname(ifindex, ifr.ifr_ifrn.ifrn_name) == NULL) {
+                if (if_indextoname(ifindex, ifr.ifr_name) == NULL) {
                     log_err(LOG_ERR, "if_indextoname");
                     goto cleanup;
                 }
@@ -183,6 +183,14 @@ int new_send_socket(const struct sockaddr_storage *sa, socklen_t sa_len, uint32_
                 log_err(LOG_ERR, "IPv4 socket");
                 return -1;
             }
+            /* On macOS, bind the socket to the interface by index so routing is stable
+               even if the address changes. */
+#if defined(IP_BOUND_IF)
+            if (setsockopt(fd, IPPROTO_IP, IP_BOUND_IF, &ifindex, sizeof(ifindex)) == -1) {
+                log_err(LOG_ERR, "setsockopt IP_BOUND_IF");
+                goto cleanup;
+            }
+#endif
             {
                 struct ifreq ifreq;
                 if (if_indextoname(ifindex, ifreq.ifr_name) == NULL) {
